@@ -133,7 +133,6 @@ public class Main extends JFrame implements ActionListener {
                 if(brutf.isSelected()) {
                     // TODO implement Bruteforce
                     resultBF = bf.BForce(str, tfmsg.getText());
-                    //tadisplay.append(resultBF.toString() + "\n");
                     tadisplay.setText(resultBF);
                 }
                 else if (bigrams.isSelected()){
