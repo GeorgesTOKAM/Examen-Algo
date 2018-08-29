@@ -29,7 +29,9 @@ public class Main extends JFrame implements ActionListener {
     String resultNG = "";
 
     Unigram ng = new Unigram();
-    List<String> myOutputList = new ArrayList<String>();
+    Bigram bg = new Bigram();
+    List<String> bigOutputList = new ArrayList<String>();
+    List<String> UnigOutputList = new ArrayList<String>();
 
 
     public Main() {
@@ -136,15 +138,16 @@ public class Main extends JFrame implements ActionListener {
                 }
                 else if (bigrams.isSelected()){
                     // TODO implement bigrams
-
+                    resultBF = "";
+                    resultBF = bg.startProbalities(tfmsg.getText());
+                    //tadisplay.setText(String.valueOf(biOutputList));
+                    tadisplay.setText(String.valueOf(resultBF));
                 }
                 else {
                     // TODO implement unigrams
-                    myOutputList = ng.startProbalities(tfmsg.getText());
-                    //tadisplay.setText(String.valueOf(myOutputList));
-                    tadisplay.setText(String.valueOf(myOutputList));
-
-
+                    UnigOutputList = ng.startProbalities(tfmsg.getText());
+                    //tadisplay.setText(String.valueOf(biOutputList));
+                    tadisplay.setText(String.valueOf(UnigOutputList));
 
                 }
             }

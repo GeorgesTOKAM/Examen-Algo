@@ -5,37 +5,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class Bigram {
 
     public static String filedico = "dicofile.txt";
     public static String fileoutbiprobs = "biprobs.txt";
-
-    /**
-     * Start Symbol and end symbol in our bigram.
-     */
     public static String DebutS = "<START>";
     public static String FinS = "<END>";
-
-
-    /**
-     * Hashmap qui stocke les noeuds et leur nom de chaîne.
-     */
     private static HashMap<String, Node> myHashMap;
 
-    /**
-     * Method that runs all other methods to find and write all probabilities of
-     * words found in the file.
-     */
-    public static void startProbalities() {
+    public static String wordpred = "";
+
+
+    public static String startProbalities(String wordF) {
         // Initialize Hashmap.
         myHashMap = new HashMap<String, Node>();
+        wordpred = "";
         final Node startSymbol = new Node(DebutS);
         myHashMap.put(DebutS, startSymbol);
         // Read in File to String
@@ -43,21 +30,18 @@ public class Bigram {
         // Build graph using each word in string.
         buildGraph(str);
         // Calculates probability and write to file.
-        writeProbabilities(fileoutbiprobs);
+        writeProbabilities(fileoutbiprobs, wordF);
+        return wordpred;
     }
 
 
-    /**
-     * Reads in a text file and returns it as a string.
-     *
-     * @param theFileName
-     *            - file to become string.
-     * @param isFormated
-     *            - Will the returned string contain line breaks.
-     * @return the string created from reading theFileName.
-     */
     private static String readFile(final String theFileName, final boolean isFormated) {
         String str = "";
+        str = getString(theFileName, isFormated, str);
+        return str;
+    }
+
+    static String getString(String theFileName, boolean isFormated, String str) {
         try (Scanner sc = new Scanner(new File(theFileName));) {
             // "\Z" means "end of string"
             str = sc.useDelimiter("\\Z").next().toLowerCase().trim();
@@ -72,12 +56,6 @@ public class Bigram {
         return str;
     }
 
-    /**
-     * Iterates though string, gets each word, and build node graph.
-     *
-     * @param theString
-     *            - the contents of a file converted to a string.
-     */
     private static void buildGraph(final String theString) {
         Node currentNode = myHashMap.get(DebutS);
         for (final String word : theString.split(" ")) {
@@ -91,15 +69,6 @@ public class Bigram {
         processNextString(currentNode, FinS);
     }
 
-    /**
-     * Given the current node and the next string, adds to nodes list of
-     * strings.
-     *
-     * @param theCurrentNode
-     *            - the current node being processed
-     * @param theNextString
-     *            - of the word that follows the current node.
-     */
     private static void processNextString(final Node theCurrentNode, final String theNextString) {
         /*
          * if the hashmap contains the node, we give the current node a pointer
@@ -115,20 +84,13 @@ public class Bigram {
         }
     }
 
-    /**
-     * Iterates through each node in hashmap, calculates the probability of each
-     * and writes it to a file.
-     *
-     * @param theOutfileName
-     *            - name of the file being written out.
-     */
-    private static void writeProbabilities(final String theOutfileName) {
+    private static void writeProbabilities(final String theOutfileName, String seW) {
         final List<Node> nodeList = new ArrayList<Node>(myHashMap.values());
         List<String> probList = new ArrayList<String>();
 
         // Gets probability for all nodes.
         for (final Node node : nodeList) {
-            probList.addAll(node.calculateAllProbability());
+            probList.addAll(node.calculateAllProbability(seW));
         }
         // shuffles results.
         Collections.shuffle(probList);
@@ -136,12 +98,6 @@ public class Bigram {
         writeFile(probList, fileoutbiprobs);
     }
 
-    /**
-     * Writes any list to a file. Converts all object types into string before writing it.
-     *
-     * @param theStringToWrite - string being written to file.
-     * @param theOutFileName - name of the file being written out.
-     */
     private static void writeFile(final List<?> theStringToWrite, final String theOutFileName){
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(theOutFileName), "utf-8"))) {
@@ -158,27 +114,6 @@ public class Bigram {
         }
     }
 
-
-    /**
-     * Calculates the joint probability of the sequence of words in the line given.
-     *
-     * @param theLine - being evaluated.
-     * @return the joint probability of the sequence of words in that line.
-     */
-    private static double calculateLineProbability(final String theLine) {
-        final String[] string = theLine.split(" ");
-        Double lineProbability = 1.0;
-        final String prevWord = DebutS;
-        for (final String word : string) {
-            if (!myHashMap.get(prevWord).isChild(word)){
-                lineProbability = 0.0;
-                break;
-            }
-            lineProbability *= 	myHashMap.get(prevWord).getProbability(word);
-        }
-        return lineProbability;
-    }
-
     static class Node {
 
         /**
@@ -193,12 +128,6 @@ public class Bigram {
         private final List<Node> myNodeList;
         private final List<Integer> myIntList;
 
-        /**
-         * Node constructor.
-         *
-         * @param myStringName
-         *            - The word associated with the node.
-         */
         public Node(final String myStringName) {
             this.myStringName = myStringName;
 
@@ -207,23 +136,10 @@ public class Bigram {
             myIntList = new ArrayList<Integer>();
         }
 
-        /**
-         * Gets the probability of a single child node appearing after
-         * our current node (this).
-         *
-         * @param word -  the name of the node we're finding the probability for.
-         * @return the probability that the node will apear after our current node (this).
-         */
         public Double getProbability(final String word) {
             return (double) myIntList.get(getNodeIndex(word)) / getTotalOccurrences();
         }
 
-        /**
-         * If node exists, increment counter. Else add the new node.
-         *
-         * @param theNextNode
-         *            - the node following our current node (this).
-         */
         public void processNextNode(final Node theNextNode) {
             // if it does not contain the node, add it.
             if (!myNodeList.contains(theNextNode)) {
@@ -277,13 +193,16 @@ public class Bigram {
          *
          * @return String containing all probabilities calculated fot this node.
          */
-        public List<String> calculateAllProbability() {
+        public List<String> calculateAllProbability(String seaw) {
             final List<String> probList = new ArrayList<String>();
             final double total = getTotalOccurrences();
             int index = 0;
             for (final Node node : myNodeList) {
                 final double prob = (double) myIntList.get(index) / total;
                 probList.add("P(" + node.myStringName + "|" + myStringName + ") = " + prob);
+                if(node.myStringName.toString().contains(seaw)){
+                    wordpred += node.myStringName + " " + myStringName + "\n";
+                }
                 index += 1;
             }
             return probList;
@@ -294,13 +213,6 @@ public class Bigram {
          */
         public String getMyStringName() {
             return myStringName;
-        }
-
-        /**
-         * @return Get the number of children nodes stored in myNodeArray.
-         */
-        public int getTotalChildren() {
-            return myNodeList.size();
         }
 
         /**
@@ -333,20 +245,6 @@ public class Bigram {
                 }
             }
             return i;
-        }
-
-        /**
-         * Automatically Prints out the name of this node, its total number of
-         * occurrences, the name of each child node and their number of
-         * occurrences.
-         */
-        public void print() {
-            System.out.println("String :" + myStringName + ", total : " + getTotalOccurrences());
-            int index = 0;
-            for (final Node node : myNodeList) {
-                System.out.println("    [Child  :" + node.getMyStringName() + " count : " + myIntList.get(index));
-                index += 1;
-            }
         }
 
     } // End node class

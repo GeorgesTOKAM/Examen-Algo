@@ -11,11 +11,6 @@ public class Unigram {
     private static List<String> myOutputList = new ArrayList<String>();
 
     /**
-     * Number of lines written to a file.
-     */
-    public static int NUMBER_OF_LINES = 100;
-
-    /**
      * Hashmap that stores a string word and their occurrences.
      */
     private static HashMap<String, Double> myHashMap;
@@ -23,7 +18,7 @@ public class Unigram {
 
     private static String resultNG = "";
     private static String resultNGF = "";
-    private int N = 0;
+
 
     /**
      * Method that runs all other methods to find and write all probabilities
@@ -45,17 +40,7 @@ public class Unigram {
     }
 
     static String getString(String theFileName, boolean isFormated, String str) {
-        try (Scanner sc = new Scanner(new File(theFileName));) {
-            // "\Z" means "end of string"
-            str = sc.useDelimiter("\\Z").next().toLowerCase().trim();
-            // "\r" and "\n" are line breaks in linux and windows respectively.
-            if (!isFormated) {
-                str = str.replaceAll("\\r", " ").replaceAll("\\n", " ");
-                str = str.replaceAll("\\s+", " ");
-            }
-        } catch (final FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        str = Bigram.getString(theFileName, isFormated, str);
         return str;
     }
 
@@ -109,7 +94,7 @@ public class Unigram {
             final
             Map.Entry pair = it.next();
             final double prob = (double) pair.getValue() / myHashMap.size();
-            //myOutputList.add("P(" + pair.getKey() + ") = " + prob);
+            //biOutputList.add("P(" + pair.getKey() + ") = " + prob);
             resultNG += pair.getKey() + "\t   P = " + prob + "\n";
             /*if ( pair.getKey().toString().contains(wordfind)){
                 resultNGF += pair.getKey() + "\t   P = " + prob + "\n";
