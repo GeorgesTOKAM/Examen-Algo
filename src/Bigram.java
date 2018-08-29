@@ -11,7 +11,6 @@ import java.util.*;
 public class Bigram {
 
     public static String filedico = "dicofile.txt";
-    public static String fileoutbiprobs = "biprobs.txt";
     public static String DebutS = "<START>";
     public static String FinS = "<END>";
     private static HashMap<String, Node> myHashMap;
@@ -20,17 +19,17 @@ public class Bigram {
 
 
     public static String startProbalities(String wordF) {
-        // Initialize Hashmap.
-        myHashMap = new HashMap<String, Node>();
+
+        myHashMap = new HashMap<String, Node>(); // Initialisation de Hashmap.
         wordpred = "";
         final Node startSymbol = new Node(DebutS);
         myHashMap.put(DebutS, startSymbol);
-        // Read in File to String
-        final String str = readFile(filedico, false);
-        // Build graph using each word in string.
-        buildGraph(str);
-        // Calculates probability and write to file.
-        writeProbabilities(fileoutbiprobs, wordF);
+
+        final String str = readFile(filedico, false); // Lire de fichier dans un String
+
+        buildGraph(str); // Construire un graphique en utilisant chaque mot dans la chaîne.
+        writeProbabilities(wordF); // calcul la probabilite
+
         return wordpred;
     }
 
@@ -43,9 +42,7 @@ public class Bigram {
 
     static String getString(String theFileName, boolean isFormated, String str) {
         try (Scanner sc = new Scanner(new File(theFileName));) {
-            // "\Z" means "end of string"
             str = sc.useDelimiter("\\Z").next().toLowerCase().trim();
-            // "\r" and "\n" are line breaks in linux and windows respectively.
             if (!isFormated) {
                 str = str.replaceAll("\\r", " ").replaceAll("\\n", " ");
                 str = str.replaceAll("\\s+", " ");
@@ -65,15 +62,14 @@ public class Bigram {
                 currentNode = myHashMap.get(word);
             }
         }
-        // adds end symbol
-        processNextString(currentNode, FinS);
+        processNextString(currentNode, FinS); // Ajouter le symbole de fin
     }
 
     private static void processNextString(final Node theCurrentNode, final String theNextString) {
         /*
-         * if the hashmap contains the node, we give the current node a pointer
-         * to it. else we create a new node, add it to hashmap, and gives its
-         * pointer to the current node.
+         * Si le hashmap contient le nœud, on donne au nœud actuel un pointeur
+         * à elle. sinon, on cré un nouveau nœud, l’ajoutons à hashmap et donne son
+         * pointeur vers le nœud actuel.
          */
         if (myHashMap.containsKey(theNextString)) {
             theCurrentNode.processNextNode(myHashMap.get(theNextString));
@@ -84,7 +80,7 @@ public class Bigram {
         }
     }
 
-    private static void writeProbabilities(final String theOutfileName, String seW) {
+    private static void writeProbabilities(String seW) {
         final List<Node> nodeList = new ArrayList<Node>(myHashMap.values());
         List<String> probList = new ArrayList<String>();
 
@@ -94,8 +90,6 @@ public class Bigram {
         }
         // shuffles results.
         Collections.shuffle(probList);
-        // writes all probabilities to file.
-        writeFile(probList, fileoutbiprobs);
     }
 
     private static void writeFile(final List<?> theStringToWrite, final String theOutFileName){
@@ -117,13 +111,13 @@ public class Bigram {
     static class Node {
 
         /**
-         * The word associated with the node.
+         * Le mot associé au noeud.
          */
         private final String myStringName;
 
         /**
-         * These are parallel Arrays to keep track of children nodes and their
-         * number of occurrences.
+         * Ce sont des tableaux parallèles pour suivre les nœuds des enfants et leur
+         * nombre d'occurrences.
          */
         private final List<Node> myNodeList;
         private final List<Integer> myIntList;
@@ -131,7 +125,7 @@ public class Bigram {
         public Node(final String myStringName) {
             this.myStringName = myStringName;
 
-            // Parallel Arrays to keep track of all children nodes.
+            // Tableaux parallèles pour suivre tous les nœuds enfants.
             myNodeList = new ArrayList<Node>();
             myIntList = new ArrayList<Integer>();
         }
@@ -140,43 +134,38 @@ public class Bigram {
             return (double) myIntList.get(getNodeIndex(word)) / getTotalOccurrences();
         }
 
-        public void processNextNode(final Node theNextNode) {
+        public void processNextNode(final Node noeudSuivant) {
             // if it does not contain the node, add it.
-            if (!myNodeList.contains(theNextNode)) {
-                addNode(theNextNode);
+            if (!myNodeList.contains(noeudSuivant)) {
+                addNode(noeudSuivant);
             }
             // if the node exists, increment count.
             else {
-                incrementCount(theNextNode);
+                incrementCount(noeudSuivant);
             }
         }
 
         /**
-         * Adds node to myNodeArray
+         * Ajouter le noeud a myNodeArray
          *
-         * @param theNextNode
-         *            - the node following our current node (this).
+         * @param noeudSuinant
          */
-        public void addNode(final Node theNextNode) {
-            myNodeList.add(theNextNode);
+        public void addNode(final Node noeudSuinant) {
+            myNodeList.add(noeudSuinant);
             myIntList.add(1);
         }
 
         /**
-         * Increments count for node in myIndexArray.
-         *
-         * @param theNextNode
-         *            - the node following our current node (this).
+         * Incrémente le nombre de nœuds dans myIndexArray.
+         * @param noeudSuivant
          */
-        public void incrementCount(final Node theNextNode) {
-            final int index = myNodeList.indexOf(theNextNode);
+        public void incrementCount(final Node noeudSuivant) {
+            final int index = myNodeList.indexOf(noeudSuivant);
             myIntList.set(index, myIntList.get(index) + 1);
         }
 
         /**
-         * Gets the total number of out pointers by iterating through
-         * myIntArray.
-         *
+         * Obtient le nombre total de pointeurs en itération via myIntArray.
          * @return the total number of occurrences in myIntList.
          */
         public int getTotalOccurrences() {
@@ -188,10 +177,11 @@ public class Bigram {
         }
 
         /**
-         * Calculates probability by dividing each number of occurrences for the
-         * child node, divided by the total number of times all children occur.
+         * Calcule la probabilité en divisant chaque nombre d'occurrences pour le
+         * nœud enfant, divisé par le nombre total de fois que tous les enfants se produisent.
+         * Trouve aussi tous les mots et mot suivant rechercher.
          *
-         * @return String containing all probabilities calculated fot this node.
+         * @return String contenant toutes les probabilites calculer.
          */
         public List<String> calculateAllProbability(String seaw) {
             final List<String> probList = new ArrayList<String>();
@@ -199,9 +189,8 @@ public class Bigram {
             int index = 0;
             for (final Node node : myNodeList) {
                 final double prob = (double) myIntList.get(index) / total;
-                probList.add("P(" + node.myStringName + "|" + myStringName + ") = " + prob);
-                if(node.myStringName.toString().contains(seaw)){
-                    wordpred += node.myStringName + " " + myStringName + "\n";
+                if(myStringName.toString().contains(seaw)){
+                    wordpred += myStringName + " " + node.myStringName + "\n";
                 }
                 index += 1;
             }
@@ -216,36 +205,20 @@ public class Bigram {
         }
 
         /**
-         * Checks if the name of the node matches any of the children nodes
-         * stored in myNodeArray.
+         * Obtient l'index d'un noeud.
          *
-         * @param theChildName - name of the node we're trying to find.
-         * @return true or false if the node is in myNodeArray.
+         * @param nomNoeud - nom du noeud que nous recherchons.
+         * @return Index du noeud dans myNodeArray.
          */
-        public boolean isChild(final String theChildName){
-            for (final Node node : myNodeList) {
-                if (theChildName.equals(node.getMyStringName())){
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /**
-         * Gets the index of a node given its name.
-         *
-         * @param theNodeName - name of the node we're searching for.
-         * @return the index of the node in myNodeArray.
-         */
-        public int getNodeIndex(final String theNodeName){
+        public int getNodeIndex(final String nomNoeud){
             int i = -1;
             for (i = 0; i < myNodeList.size(); i++) {
-                if (theNodeName.equals(myNodeList.get(i).getMyStringName())) {
+                if (nomNoeud.equals(myNodeList.get(i).getMyStringName())) {
                     break;
                 }
             }
             return i;
         }
 
-    } // End node class
+    }
 }

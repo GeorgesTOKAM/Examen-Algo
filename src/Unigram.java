@@ -3,16 +3,8 @@ import java.util.*;
 
 public class Unigram {
 
-    /**
-     * Static strings of filename.
-     */
     public static String FILE_NAME = "dicofile.txt";
-
     private static List<String> myOutputList = new ArrayList<String>();
-
-    /**
-     * Hashmap that stores a string word and their occurrences.
-     */
     private static HashMap<String, Double> myHashMap;
     public static Trie t = new Trie();
 
@@ -20,16 +12,11 @@ public class Unigram {
     private static String resultNGF = "";
 
 
-    /**
-     * Method that runs all other methods to find and write all probabilities
-     * of words found in the file.
-     */
     public static List<String> startProbalities(String wordF) {
         myHashMap = new HashMap<String, Double>();
         final String str = readFile(FILE_NAME, false);
         countOccurrences(str, wordF);
         List<String> a= t.autocomplete(wordF);
-        //writeProbabilities();
         return a;
     }
 
@@ -44,25 +31,6 @@ public class Unigram {
         return str;
     }
 
-    /**
-     * Iterates though the given string and counts occurrence of each word.
-     * Puts the data in a hashmap<TheWord, theNumberOfOccurences>.
-     *
-     * @param theString - the string being evaluated.
-     */
-    /*private static void countOccurrences(final String theString, final String wordfind) {
-        for (final String word : theString.split(" ")) {
-            // Checks for empty string
-            if (!"".equals(word.trim())) {
-                if (myHashMap.containsKey(word)) {
-                    final double newValue = myHashMap.get(word).intValue() + 1;
-                    myHashMap.put(word, newValue);
-                } else {
-                    myHashMap.put(word, 1.0);
-                }
-            }
-        }
-    }*/
 
     private static void countOccurrences(final String theString, final String wordfind) {
         for (final String word : theString.split(" ")) {
@@ -80,27 +48,6 @@ public class Unigram {
         }
     }
 
-    /**
-     * Iterates through each string in list, calculates the probability of each
-     * and writes it to a file.
-     *
-     */
-    private static void writeProbabilities() {
-
-        resultNG = "";
-        final Iterator<Map.Entry<String, Double>> it = myHashMap.entrySet().iterator();
-        while (it.hasNext()) {
-            @SuppressWarnings("rawtypes")
-            final
-            Map.Entry pair = it.next();
-            final double prob = (double) pair.getValue() / myHashMap.size();
-            //biOutputList.add("P(" + pair.getKey() + ") = " + prob);
-            resultNG += pair.getKey() + "\t   P = " + prob + "\n";
-            /*if ( pair.getKey().toString().contains(wordfind)){
-                resultNGF += pair.getKey() + "\t   P = " + prob + "\n";
-            }*/
-        }
-    }
     static class TrieNode {
         char data;
         LinkedList<TrieNode> children;

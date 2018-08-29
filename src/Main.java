@@ -140,13 +140,11 @@ public class Main extends JFrame implements ActionListener {
                     // TODO implement bigrams
                     resultBF = "";
                     resultBF = bg.startProbalities(tfmsg.getText());
-                    //tadisplay.setText(String.valueOf(biOutputList));
                     tadisplay.setText(String.valueOf(resultBF));
                 }
                 else {
                     // TODO implement unigrams
                     UnigOutputList = ng.startProbalities(tfmsg.getText());
-                    //tadisplay.setText(String.valueOf(biOutputList));
                     tadisplay.setText(String.valueOf(UnigOutputList));
 
                 }

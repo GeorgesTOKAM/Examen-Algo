@@ -1,8 +1,5 @@
 public class BruteForce {
 
-    //private String context = "";
-    //private String [] words = new String [0];
-
     public String BForce(String alltext, String findtext) {
 
         String [] words = alltext.split(" ");
