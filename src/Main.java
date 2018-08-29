@@ -10,12 +10,9 @@ import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.GridBagConstraints;
-import java.io.File;
-import java.io.FileNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 
 public class Main extends JFrame implements ActionListener {
@@ -54,7 +51,8 @@ public class Main extends JFrame implements ActionListener {
         btnsend.addActionListener(this);
         btnsend.addActionListener(new sendListener());
         brutf.addActionListener(new brutforcListener());
-        ngrams.addActionListener(new ngramsListener());
+        unigrams.addActionListener(new unigramsListener());
+        bigrams.addActionListener(new bigramsListener());
         tfmsg.addActionListener(new MyTextActionListener());
         tfmsg.getDocument().addDocumentListener(new MyDocumentListener());
         tfmsg.getDocument().putProperty("name", "Text Field");
@@ -67,18 +65,29 @@ public class Main extends JFrame implements ActionListener {
     }
 
     public class brutforcListener implements ActionListener{
-        // TODO Desactivatin ngrams ratio
+        // TODO Desactivatin unigrams ratio
         @Override
         public void actionPerformed ( ActionEvent event ){
-            ngrams.setSelected(false);
+            unigrams.setSelected(false);
+            bigrams.setSelected(false);
             brutf.setSelected(true);
         }
     }
-    public class ngramsListener implements ActionListener{
+    public class unigramsListener implements ActionListener{
         // TODO Desactivatin brute force ratio
         @Override
         public void actionPerformed ( ActionEvent event ){
-            ngrams.setSelected(true);
+            unigrams.setSelected(true);
+            brutf.setSelected(false);
+            bigrams.setSelected(false);
+        }
+    }
+    public class bigramsListener implements ActionListener{
+        // TODO Desactivatin brute force ratio
+        @Override
+        public void actionPerformed ( ActionEvent event ){
+            bigrams.setSelected(true);
+            unigrams.setSelected(false);
             brutf.setSelected(false);
         }
     }
@@ -125,10 +134,16 @@ public class Main extends JFrame implements ActionListener {
                     //tadisplay.append(resultBF.toString() + "\n");
                     tadisplay.setText(resultBF);
                 }
+                else if (bigrams.isSelected()){
+                    // TODO implement bigrams
+
+                }
                 else {
-                    // TODO implement ngrams
-                    resultNG = ng.startProbalities(tfmsg.getText());
-                    tadisplay.setText(resultNG);
+                    // TODO implement unigrams
+                    myOutputList = ng.startProbalities(tfmsg.getText());
+                    //tadisplay.setText(String.valueOf(myOutputList));
+                    tadisplay.setText(String.valueOf(myOutputList));
+
 
 
                 }
@@ -193,17 +208,7 @@ public class Main extends JFrame implements ActionListener {
      */
     private static String readFile(final String theFileName, final boolean isFormated) {
         String str = "";
-        try (Scanner sc = new Scanner(new File(theFileName));) {
-            // "\Z" means "end of string"
-            str = sc.useDelimiter("\\Z").next().toLowerCase().trim();
-            // "\r" and "\n" are line breaks in linux and windows respectively.
-            if (!isFormated) {
-                str = str.replaceAll("\\r", " ").replaceAll("\\n", " ");
-                str = str.replaceAll("\\s+", " ");
-            }
-        } catch (final FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        str = Unigram.getString(theFileName, isFormated, str);
         return str;
     }
 
@@ -249,19 +254,24 @@ public class Main extends JFrame implements ActionListener {
 
             gbc.gridx = 1;
             gbc.weightx = 1;
-            detailsPane.add(ngrams, gbc);
+            detailsPane.add(unigrams, gbc);
 
 
             gbc.gridx = 2;
+            gbc.weightx = 1;
+            detailsPane.add(bigrams, gbc);
+
+
+            /*gbc.gridx = 2;
             gbc.gridwidth = GridBagConstraints.RELATIVE;
             gbc.weightx = 1.;
             gbc.anchor = GridBagConstraints.BASELINE_TRAILING;
             gbc.insets = new Insets(0, 0, 0, 0);
-            detailsPane.add(btnsend, gbc);
+            detailsPane.add(btnclear, gbc);*/
 
             gbc.gridx = 3;
             gbc.weightx = 0.;
-            detailsPane.add(btnclear, gbc);
+            detailsPane.add(btnsend, gbc);
 
             setLayout(new BorderLayout());
             add(detailsPane);
@@ -295,6 +305,7 @@ public class Main extends JFrame implements ActionListener {
     private JButton btnclear = new JButton("Clear");
     private JButton btnsend = new JButton("Send");
     private JRadioButton brutf = new JRadioButton(" Brute Force");
-    private JRadioButton ngrams = new JRadioButton(" N-grams");
+    private JRadioButton unigrams = new JRadioButton(" Unigrams");
+    private JRadioButton bigrams = new JRadioButton(" Bigrams");
 
 }
